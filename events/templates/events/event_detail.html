@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %} Event Detail Page {% endblock title %}
+
+{% block content %}
+
+<div class="mt-4">
+    <div class="d-xl-flex col-xl">
+        <div>
+            <img src="https://thumbs.dreamstime.com/b/simple-website-html-code-colourful-tags-browser-view-dark-background-orange-text-183366184.jpg"
+                class="rounded mx-auto d-block" width="300" alt="***">
+        </div>
+        <div class="col align-content-end flex-wrap text-center text-xl-start ms-3">
+            <h1>{{ event.title }}</h1>
+            <nav>
+                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                    <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab"
+                        data-bs-target="#nav-overview" type="button" role="tab" aria-controls="nav-overview"
+                        aria-selected="true">Overview</button>
+                    <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-ideas"
+                        type="button" role="tab" aria-controls="nav-ideas" aria-selected="false">Ideas</button>
+                    <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact"
+                        type="button" role="tab" aria-controls="nav-contact" aria-selected="false">****</button>
+                </div>
+            </nav>
+        </div>
+    </div>
+
+    <div class="tab-content mt-4" id="nav-tabContent">
+        <div class="tab-pane fade show active" id="nav-overview" role="tabpanel" aria-labelledby="nav-overview-tab">
+            {{ event.overview }}
+        </div>
+        <div class="tab-pane fade" id="nav-ideas" role="tabpanel" aria-labelledby="nav-ideas-tab">
+            {% if request.user.is_authenticated %}
+            <div class="row w-50 mb-3">
+                <form method="post" action="{% url 'events:create-idea' event.id %}">
+                    {% csrf_token %}
+                    {{ idea_form.as_p }}
+                    <!--
+                    <div class="mb-3">
+                        <label for="titleInput" class="form-label">Idea title</label>
+                        <input type="text" class="form-control" id="titleInput" aria-describedby="">
+                    </div>
+                    <div class="mb-3">
+                        <label for="overviewInput" class="form-label">Idea Overview</label>
+                        <textarea id="overviewInput" class="form-control">
+                        </textarea>
+                    </div>
+-->
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+            {% endif %}
+
+            {% for idea in ideas %}
+            <div id="ideas-list" class="row">
+                <form id="upvote-idea-{{ idea.id }}" method="post" type="hidden" action="{% url 'events:upvote-idea' event.id idea.id %}">
+                    {% csrf_token %}
+                </form>
+                <div class="col-md-6 mb-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ idea.title }}</h5>
+                            {% if idea.is_liked %}
+                            <i class="fa-solid fa-heart"></i>
+                            {% else %}
+                            <i class="fa-regular fa-heart" onclick="upvoteIdea({{ idea.id }})"></i>
+                            {% endif %}
+                            <span class="badge text-bg-secondary">{{ idea.upvotes.count }}</span>
+                            <p class="card-text">{{ idea.overview }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">...</div>
+    </div>
+
+</div>
+<script>
+function upvoteIdea(idea_id) {
+    document.getElementById(`upvote-idea-${idea_id}`).submit();
+}
+</script>
+{% endblock %} 
